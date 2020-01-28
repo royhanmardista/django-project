@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'profiles.apps.ProfilesConfig',
+    'phonenumber_field',
+    'django_countries',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,15 +125,30 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # this is where the folder is
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # this is how you access it
-MEDIA_URL = '/media/'
 
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated', )
+        'rest_framework.permissions.IsAuthenticated', ),
+    # "EXCEPTION_HANDLER": ("profiles.exceptions.custom_exception_handler", ),    
 }
+
+import datetime
+
+JWT_AUTH = {
+    'JWT_SECRET_KEY': SECRET_KEY,
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=28),
+}
+
+# REST_FRAMEWORK = {'EXCEPTION_HANDLER':'my_project.my_app.utils.custom_exception_handler'}
+
+PHONENUMBER_DEFAULT_REGION = 'ID'
