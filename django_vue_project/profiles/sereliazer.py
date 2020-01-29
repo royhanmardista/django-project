@@ -66,7 +66,6 @@ class ProfileSerializer(serializers.ModelSerializer) :
         fields = '__all__'        
 
     def create(self, validated_data):        
-        print('asssssssssssssssssssssssssssssssssssssssssss===============================================')        
         validated_data['user'] = self.context['request'].user    
         obj = Profile.objects.create(**validated_data)
         obj.save()

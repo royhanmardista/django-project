@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_cleanup',
     'rest_framework',
     'rest_framework.authtoken',
     'profiles.apps.ProfilesConfig',

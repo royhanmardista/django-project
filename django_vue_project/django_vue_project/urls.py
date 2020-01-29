@@ -9,12 +9,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login', profiles_views.login),
     path('register', profiles_views.register),
-    path('profiles', profiles_views.createProfile),
     path('countries', profiles_views.getCountries),
-    path('profiles/<int:pk>', profiles_views.profileRUD),
-    path('profiles/<int:pk>', profiles_views.profileRUD),
-    path('profiles/<int:pk>', profiles_views.profileRUD),
+    path('profiles', profiles_views.createProfile),
     path('profiles/all', profiles_views.getAllProfiles),   
+    path('profiles/<int:pk>', profiles_views.profileRUD),    
 ]
 
 if settings.DEBUG : 
