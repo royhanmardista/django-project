@@ -36,7 +36,7 @@ def register(request):
     username = request.data.get("username")
     email = request.data.get("email")
     password = request.data.get("password")
-    confirm_password = request.data.get("confirm_password")    
+    confirm_password = request.data.get("confirm_password")
     if password == confirm_password:
         if User.objects.filter(username=username).exists():
             return Response({'error': 'username already exist'}, status=HTTP_400_BAD_REQUEST)
@@ -45,10 +45,10 @@ def register(request):
         else:
             serializer = UserSerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save()                
-                return Response({'message' : 'you have successfully registered'}, status=HTTP_201_CREATED)
-            else :
-                return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)            
+                serializer.save()
+                return Response({'message': 'you have successfully registered', 'user': serializer.data}, status=HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
     else:
         return Response({'error': 'password not matched'}, status=HTTP_400_BAD_REQUEST)
 
@@ -64,75 +64,104 @@ def login(request):
     if User.objects.filter(username=username).exists():
         user = authenticate(username=username, password=password)
         if not user:
-            return Response({'error': 'Wrong password'}, status=HTTP_400_BAD_REQUEST)        
+            return Response({'error': 'Wrong password'}, status=HTTP_400_BAD_REQUEST)
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
-        return Response({'token': token, 'message': 'login success'}, status=HTTP_200_OK)
+        user = get_object_or_404(User, username=username)
+        user_serializer = UserSerializer(user, context={'request': request})
+        return Response({'token': token, 'message': 'login success', 'user': user_serializer.data}, status=HTTP_200_OK)
     else:
         return Response({'error': 'Username not found'}, status=HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET"])
+@permission_classes((AllowAny, ))
+def getAllUsers(request):
+    users = User.objects.all()
+    sereliazer = UserSerializer(users, many=True)
+    return Response({'users': sereliazer.data}, status=HTTP_200_OK)
+
+
+@api_view(["GET"])
 @permission_classes((IsAuthenticated, ))
-@authentication_classes((JSONWebTokenAuthentication,))   
+@authentication_classes((JSONWebTokenAuthentication,))
 def getAllProfiles(request):
     profiles = Profile.objects.all()
-    serializer = ProfileSerializer(profiles, many=True)
+    serializer = ProfileSerializer(
+        profiles, many=True,  context={'request': request})
     return Response({'profiles': serializer.data}, status=HTTP_200_OK)
+
 
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((IsAuthenticated, ))
 @authentication_classes((JSONWebTokenAuthentication,))
-def createProfile(request, *args, **kwargs):    
+def createProfile(request, *args, **kwargs):
 
     if Profile.objects.filter(user=request.user.id).exists():
         return Response({'error': 'You already created a profile'}, status=HTTP_400_BAD_REQUEST)
 
-    serializer = ProfileSerializer(data=request.data, context={'request': request})
+    user_serializer = UserSerializer(
+        request.user, context={'request': request})
+    serializer = ProfileSerializer(
+        data=request.data, context={'request': request})
     if serializer.is_valid(raise_exception=True):
         serializer.save()
-        return Response(serializer.data, status=HTTP_201_CREATED)
-    else :
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)     
-   
+        return Response({'profile': serializer.data, 'user': user_serializer.data, 'message': 'profile succesfully created'}, status=HTTP_201_CREATED)
+    else:
+        return Response({'error': serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
-@api_view(["GET","PUT","DELETE"])
+
+@api_view(["GET", "PUT", "DELETE"])
 @permission_classes((IsAuthenticated, ))
-@authentication_classes((JSONWebTokenAuthentication,))   
+@authentication_classes((JSONWebTokenAuthentication,))
 def profileRUD(request, pk) :
 
-    try :         
-        profile = Profile.objects.get(pk=pk)
-    except :    
+    try:
+        user = get_object_or_404(User, pk=pk)
+        profile = get_object_or_404(Profile, user=pk)
+    except:
         return Response({'error': 'profile not found'}, status=HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET' :
-        serializer = ProfileSerializer(profile)
-        return Response({'profiles': serializer.data}, status=HTTP_200_OK) 
+    user_serializer = UserSerializer(user)
+    if request.method == 'GET':
+        profile_serializer = ProfileSerializer(
+            profile,  context={'request': request})
+        return Response({'profile': profile_serializer.data, 'user': user_serializer.data}, status=HTTP_200_OK)
 
-    elif request.method == 'PUT' :
-        if profile.user_id == request.user.id :
-                serializer = ProfileSerializer(instance=profile, data=request.data, partial=True)
-                if serializer.is_valid(raise_exception=True):
-                    serializer.save()
-                    return Response({'message': 'profile has been updated', 'profile' : serializer.data}, status=HTTP_200_OK)
-        else :
-            return Response({'error': 'you are not authorized to update this profile'}, status=HTTP_403_FORBIDDEN)       
-    
-    elif request.method == 'DELETE' :
-        if profile.user_id == request.user.id :
+    elif request.method == 'PUT':
+        if profile.user_id == request.user.id:
+            serializer = ProfileSerializer(
+                instance=profile, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response({'message': 'profile has been updated', 'profile': serializer.data, 'user': user_serializer.data}, status=HTTP_200_OK)
+        else:
+            return Response({'error': 'you are not authorized to update this profile'}, status=HTTP_403_FORBIDDEN)
+
+    elif request.method == 'DELETE':
+        if profile.user_id == request.user.id:
             serializer = ProfileSerializer(profile)
             profile.delete()
             return Response({'message': 'profile has been deleted', 'profiles': serializer.data}, status=HTTP_200_OK)
-        else :
+        else:
             return Response({'error': 'you are not authorized to delete this profile'}, status=HTTP_403_FORBIDDEN)
+
 
 @csrf_exempt
 @api_view(["GET"])
 @permission_classes((AllowAny,))
-def getCountries(request) :
-    
+def getCountries(request):
+
     return Response({'countries': countries}, status=HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes((IsAuthenticated, ))
+@authentication_classes((JSONWebTokenAuthentication,))
+def findLoggedUser(requset):
+    # profiles = Profile.objects.all()
+    serializer = UserSerializer(requset.user)
+    return Response({'user': serializer.data}, status=HTTP_200_OK)

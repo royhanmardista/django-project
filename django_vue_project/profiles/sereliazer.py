@@ -14,12 +14,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField(required=True)
     username = serializers.CharField(required=True, min_length=3)
-    password = serializers.CharField(min_length=8, required=True)
+    password = serializers.CharField(min_length=8, required=True, write_only=True)
 
     class Meta:
         model = User
+        # extra_kwargs = {'password': {'write_only': True}}              
         fields = ("id", "username", "email", "password")        
-        extra_kwargs = {'password': {'write_only': True}}              
 
     def create(self, validated_data):
         user = User(
@@ -38,7 +38,7 @@ class ProfileSerializer(serializers.ModelSerializer) :
     GENDER_CHOICES = [('female', 'female'), ('male', 'male'), ('other', 'other')]
     gender = serializers.ChoiceField(GENDER_CHOICES, required=True)
     phone = PhoneNumberField(null=False, blank=False, unique=True)
-    photo = serializers.ImageField(required=True, allow_empty_file=False)
+    photo = serializers.ImageField(required=True, allow_empty_file=False, use_url=True)
     date_of_birth = serializers.DateField(required=True)
     nationality = CountryField(blank=False, null=False)
 
