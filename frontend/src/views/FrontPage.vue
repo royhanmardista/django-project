@@ -8,17 +8,7 @@
               <i class="fa fa-wordpress"></i> MY BLOG
             </h1>
             <p>Helps you find your frieds</p>
-            <div>
-              <!-- <b-form @submit.prevent="searchUser">
-                <b-input-group size="lg" class="mt-2 ml-1 pt-1" placeholder="search">
-                  <b-form-input v-model="description" placeholder="Search User..."></b-form-input>
-                  <b-input-group-append class="mr-1">
-                    <b-button size="lg" text="Button" variant="primary" type="submit">
-                      <i class="fa fa-search"></i>
-                    </b-button>
-                  </b-input-group-append>
-                </b-input-group>
-              </b-form> -->
+            <div>             
             </div>
           </div>
         </div>
@@ -26,8 +16,7 @@
     </div>
     <!-- list of user start -->
     <div class="container-fluid">
-      <h2 class="mt-5" v-b-toggle.user-collapse style="cursor:pointer">List of User</h2>
-      <h4>{{ allusers.length }} users found in MY BLOG</h4>
+      <h4 class="mt-5" v-b-toggle.user-collapse style="cursor:pointer">{{ allusers.length }} users found in MY BLOG</h4>
       <b-collapse id="user-collapse" :visible="true">
         <p>Page: {{ currentPage }}</p>
         <b-pagination
@@ -140,12 +129,7 @@ export default {
     } else {
       document.body.className = "intro";
     }
-  }
-  // beforeRouteUpdate(to, from, next) {
-  //   console.log('ketrigger')
-  //   this.getAllUsers();
-  //   next()
-  // }
+  }  
 };
 </script>
 

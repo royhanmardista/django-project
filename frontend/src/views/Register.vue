@@ -69,33 +69,7 @@
               </button>
             </div>
           </b-form>
-          <p class="text-center text-white mt-2 mb-2">or you can register using:</p>
-          <!-- google button -->
-          <div class="row">
-            <template>
-              <g-signin-button
-                class="btn btn-block btn-primary mx-3"
-                :params="googleSignInParams"
-                @success="onSignInSuccess"
-                @error="onSignInError"
-              >
-                <div v-if="!loading_google">
-                  <i class="fa fa-google pr-2"></i>
-                  Sign in with Google
-                </div>
-                <div>
-                  <b-spinner small v-if="loading_google" variant="light" label="Spinning"></b-spinner>
-                </div>
-              </g-signin-button>
-            </template>
-          </div>
-          <!-- google button end -->
-          <p class="text-center mt-2 text-white" style="font-size:0.7rem">
-            If you continue with Google and don't already have a MY BLOG account, you are creating an account and you agree to our
-            <span
-              class="text-danger"
-            >Terms of Service</span>.
-          </p>
+          
         </div>
       </div>
     </div>
@@ -103,54 +77,26 @@
 </template>
 
 <script>
-import GSignInButton from "vue-google-signin-button";
 import server from "@/api/server.js";
 
 export default {
   components: {
-    GSignInButton
   },
   data() {
     return {
       errorMessage: "",
       loginMessage: "",
-      loginLoading: false,
-      googleSignInParams: {
-        client_id:
-          "628697528399-tm5hqkb025uttnahfoj889flu2jg3hvm.apps.googleusercontent.com"
-      },
+      loginLoading: false,      
       email_register: "",
       password_register: "",
       confirm_password_register: "",
       username_register: "",
-      loading_google: false
     };
   },
   methods: {
     success: function(message) {
       this.$alertify.success(message);
-    },
-    async onSignInSuccess(googleUser) {
-      this.loading_google = true;
-      let idToken = googleUser.getAuthResponse().id_token;
-      try {
-        let { data } = await server.post("/login-google", {
-          google_token: idToken
-        });
-        localStorage.setItem("token", data.token);
-        this.success(data.message);
-        this.$store.commit("SET_LOGGED_USER", data.user);
-        this.$store.commit("CHECK_LOGIN");
-        this.$router.push("/home");
-      } catch (err) {
-        this.$alertify.error(this.err.response.data.message);
-      } finally {
-        this.loading_google = true;
-      }
-    },
-    onSignInError(error) {
-      console.log("OH NOES", error);
-    },
+    },    
     async register() {
       this.loginLoading = true;
       try {

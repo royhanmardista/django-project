@@ -31,12 +31,12 @@
             </span>
           </div>
           <input
-            name
             id="username"
             class="form-control"
             placeholder="Enter username"
             v-model="username"
             type="username"
+            required
           />
         </div>
         <!-- username end  -->
@@ -54,6 +54,7 @@
             placeholder="Enter password"
             type="password"
             v-model="password"
+            required
           />
         </div>
         <!-- form-group// -->
