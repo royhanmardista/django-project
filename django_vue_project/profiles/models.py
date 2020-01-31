@@ -19,8 +19,8 @@ class Profile(models.Model):
     lastname = models.CharField(max_length=20, blank=True, null=True)
     photo = models.ImageField(default='default.jpg',
                               upload_to='profile_pic/', null=False, blank=False)
-    GENDER_CHOICES = models.TextChoices('GENDER_CHOICES', 'male female other')
-    gender = models.CharField(max_length=6, choices=GENDER_CHOICES.choices)
+    GENDER_CHOICES = [('female', 'female'), ('male', 'male'), ('other', 'other')]
+    gender = models.CharField(max_length=6, choices=GENDER_CHOICES)
     date_of_birth = models.DateField(validators=[dateValidator])
     nationality = CountryField(blank=False, null=False)
     phone = PhoneNumberField(null=False, blank=False, unique=True)

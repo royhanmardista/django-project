@@ -7,14 +7,14 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login', profiles_views.login),
-    path('user', profiles_views.findLoggedUser),
-    path('users', profiles_views.getAllUsers),
-    path('register', profiles_views.register),
-    path('countries', profiles_views.getCountries),
-    path('profiles', profiles_views.createProfile),
-    path('profiles/all', profiles_views.getAllProfiles),   
-    path('profiles/<int:pk>', profiles_views.profileRUD),    
+    path('login', profiles_views.login, name="login"),
+    path('user', profiles_views.findLoggedUser, name="loggeduser"),
+    path('users', profiles_views.getAllUsers, name="allusers"),
+    path('register', profiles_views.register,name="register"),
+    path('countries', profiles_views.getCountries, name="countries"),
+    path('profiles', profiles_views.createProfile, name="createprofile"),
+    path('profiles/all', profiles_views.getAllProfiles, name="getprofiles"),   
+    path('profiles/<int:pk>', profiles_views.profileRUD, name="read_update_delete"),    
 ]
 
 if settings.DEBUG : 

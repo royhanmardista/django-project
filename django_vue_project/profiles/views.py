@@ -48,7 +48,7 @@ def register(request):
                 serializer.save()
                 return Response({'message': 'you have successfully registered', 'user': serializer.data}, status=HTTP_201_CREATED)
             else:
-                return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+                return Response({'error': serializer.errors}, status=HTTP_400_BAD_REQUEST)
     else:
         return Response({'error': 'password not matched'}, status=HTTP_400_BAD_REQUEST)
 
@@ -117,7 +117,7 @@ def createProfile(request, *args, **kwargs):
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes((IsAuthenticated, ))
 @authentication_classes((JSONWebTokenAuthentication,))
-def profileRUD(request, pk) :
+def profileRUD(request, pk):
 
     try:
         user = get_object_or_404(User, pk=pk)
@@ -162,6 +162,5 @@ def getCountries(request):
 @permission_classes((IsAuthenticated, ))
 @authentication_classes((JSONWebTokenAuthentication,))
 def findLoggedUser(requset):
-    # profiles = Profile.objects.all()
     serializer = UserSerializer(requset.user)
     return Response({'user': serializer.data}, status=HTTP_200_OK)
